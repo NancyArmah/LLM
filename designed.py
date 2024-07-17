@@ -1,14 +1,14 @@
 import os
-import streamlit as st
-from langchain_groq import ChatGroq
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_core.prompts import ChatPromptTemplate
+import streamlit as st #UI
+from langchain_groq import ChatGroq #to create chatbot
+from langchain_text_splitters import RecursiveCharacterTextSplitter #to convert documents to chunks
+from langchain.chains.combine_documents import create_stuff_documents_chain #to get relevant doc qna to setup context
+from langchain_core.prompts import ChatPromptTemplate #create custom prompt template
 from langchain.chains import create_retrieval_chain
-from langchain_community.vectorstores import FAISS
+from langchain_community.vectorstores import FAISS #embed vector store DB, performs semantic/similarity search
 from langchain_community.document_loaders import PyPDFDirectoryLoader
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from langchain.globals import set_verbose, get_verbose
+from langchain_google_genai import GoogleGenerativeAIEmbeddings #vector embedding technique
+#from langchain.globals import set_verbose, get_verbose
 from dotenv import load_dotenv
 import time
 #import sys
@@ -40,8 +40,8 @@ def vector_embedding():
     if "vectors" not in st.session_state:
         with st.spinner("Creating vector store, please wait..."):
             st.session_state.embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
-            st.session_state.loader = PyPDFDirectoryLoader("./Questions")
-            st.session_state.docs = st.session_state.loader.load()
+            st.session_state.loader = PyPDFDirectoryLoader("./Questions")  #data ingestion
+            st.session_state.docs = st.session_state.loader.load() #docs load
             st.session_state.text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
             st.session_state.final_documents = st.session_state.text_splitter.split_documents(st.session_state.docs)
             st.session_state.vectors = FAISS.from_documents(st.session_state.final_documents, st.session_state.embeddings)
@@ -55,7 +55,7 @@ if st.button("Create Vector Store"):
 
 # Interface for entering the question
 st.header("Ask a Question")
-st.write("Enter your question based on the documents provided and get an accurate response.")
+st.write("Enter your question based on the documents provided and get an accurate response. Enjoy!!!")
 with st.form(key='question_form'):
     prompt1 = st.text_input("Enter Question from the Document")
     submit_button = st.form_submit_button(label='Submit Question')
@@ -89,6 +89,7 @@ st.markdown("""
         border-radius: 5px;
         padding: 10px;
         font-size: 16px;
+        color: black; /* Set the text color to black */
     }
     .stButton button {
         background-color: #4CAF50;
