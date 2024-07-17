@@ -46,9 +46,10 @@ def vector_embedding():
 
 
 
+
 prompt1=st.text_input("Enter Question from the Document")
 
-if st.button("Creating Vector Store"):
+if st.button("Create Vector Store"):
     vector_embedding()
     st.write("Vector Store DB is Ready")
 
@@ -62,6 +63,7 @@ if prompt1:
 
     start=time.process_time()
     response=retrieval_chain.invoke({'input':prompt1})
+    print("Response time :",time.process_time()-start)
     st.write(response['answer'])
 
 
@@ -71,5 +73,4 @@ if prompt1:
         for i, doc in enumerate(response["context"]):
             st.write(doc.page_content)
             st.write("..............")
-
             
