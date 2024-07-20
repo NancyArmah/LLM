@@ -1,0 +1,154 @@
+Conditional Statements Practice Questions
+
+
+
+Check Even or Odd
+
+Write a program that takes an integer input from the user and prints whether the number is even or odd.
+
+
+
+number = int(input("Enter a number: "))
+
+# Your code here
+
+
+
+Grade Evaluation
+
+Write a program that takes a score (0-100) from the user and prints the corresponding grade based on the following criteria:
+
+
+
+90-100: A
+
+80-89: B
+
+70-79: C
+
+60-69: D
+
+Below 60: F
+
+
+
+score = int(input("Enter your score: ")) # Your code here
+
+
+
+Temperature Check
+
+Write a program that takes a temperature input from the user and prints:
+
+
+
+"It's hot!" if the temperature is above 30 degrees,
+
+"It's warm!" if the temperature is between 20 and 30 degrees,
+
+"It's cold!" if the temperature is below 20 degrees.
+
+
+
+temperature = float(input("Enter the temperature: "))
+
+# Your code here
+
+
+
+Vowel or Consonant
+
+Write a program that takes a single character input from the user and prints whether the character is a vowel or a consonant.
+
+
+
+char = input("Enter a character: ") # Your code here
+
+
+
+Leap Year Check
+
+Write a program that takes a year as input from the user and checks if the year is a leap year or not. (A year is a leap year if it is divisible by 4, but not by 100 unless it is also divisible by 400.)
+
+
+
+
+
+
+
+
+
+SET 1
+
+
+
+For each of the questions below use both a for and while loop to solve it
+
+
+
+Print even numbers between 1 and 20:
+
+Print elements of a list along with their indices.
+
+Sum of the first 10 natural numbers:
+
+Print prime numbers between 1 and 50:
+
+Print the elements of a list that are greater than 10
+
+	numbers = [4, 11, 7, 15, 2, 19, 5]
+
+
+
+SET 2 
+
+
+
+Choose between for or while loop or you can do both (you are encouraged to do both) 
+
+
+
+Count Vowels in a String
+
+Write a for loop that counts the number of vowels in the string "OpenAI".
+
+Calculate the sum of digits of a number (e.g., 1234)
+
+Remove duplicates from a list of numbers = [1, 2, 3, 2, 4, 1, 5, 3]
+
+Find the Maximum in a List of numbers = [3, 5, 7, 2, 8, 1, 4]
+
+Print the first 10 terms of the series 1, 4, 9, 16, ... (squares of natural numbers)
+
+
+
+Intermediate-level questions (if you want a challenge!!!!!!!!)
+
+
+
+A while loop can be used to solve the questions below, so if you do decide to attempt, you can try using a while loop afterward.
+
+
+Write a for loop that reverses the string "Python". 
+
+string = "Python"
+
+Sum of Elements in a List of Lists
+
+Write a for loop that calculates the sum of all the elements in a list of lists, e.g., [[1, 2, 3], [4, 5, 6], [7, 8, 9]].
+
+Fibonacci Sequence
+
+Write a for loop to print the first 10 numbers of the Fibonacci sequence.
+
+Check for Prime Numbers
+
+Write a for loop that checks if a given number n is a prime number.
+
+Transpose a Matrix
+
+Write a for loop to transpose a 2x2 matrix. For example, given [[1, 2], [3, 4]], the transposed matrix is [[1, 3], [2, 4]].
+
+
+
+Try to solve as many as you can!

@@ -8,3 +8,7 @@ langchain_community
 python-dotenv
 pypdf
 langchain
+docx2txt
+bs4
+openpyxl
+requests

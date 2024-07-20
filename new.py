@@ -1,24 +1,84 @@
 import os
 import streamlit as st
+import pandas as pd
+import docx2txt
+import requests
+from bs4 import BeautifulSoup
 from langchain_groq import ChatGroq
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains import create_retrieval_chain
 from langchain_community.vectorstores import FAISS
-from langchain_community.document_loaders import PyPDFDirectoryLoader, PyPDFLoader
-from langchain_google_genai import GoogleGenerativeAIEmbeddings #vector embedding technique
+from langchain_community.document_loaders import PyPDFDirectoryLoader, PyPDFLoader, TextLoader
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from dotenv import load_dotenv
 import time
+
+# Custom Document class
+class Document:
+    def __init__(self, page_content, metadata=None):
+        self.page_content = page_content
+        self.metadata = metadata or {}
 
 # Load environment variables
 load_dotenv()
 groq_api_key = os.getenv("GROQ_API_KEY")
+os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY")
 
-# Streamlit app setup
-st.title("Korzzzz Document Q&A 😎")
-st.subheader("Helluuuuuurrrrr!!!! Welcome to my Document Q&A Application! yaaaayyyyy!🎉")
-st.write("This application allows you to ask questions based on the context of provided documents.")
+# Streamlit app setup with improved layout
+st.set_page_config(page_title="ADVANCED ANALYTICS BOT", page_icon="image.jpeg", layout="wide")
+
+# Custom CSS for improved UI
+st.markdown("""
+<style>
+    .main-title {
+        font-size: 3em;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 0em;
+        color: #0492C2;
+    }
+    .file-upload-area {
+        padding: 1px;
+        text-align: center;
+        margin-bottom: 0em;
+    }
+    .stTextInput input {
+        font-size: 1.2em;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #0492C2;
+    }
+    .stButton button {
+        background-color: #0492C2;
+        color: white;
+        font-size: 1.2em;
+        padding: 10px 20px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+    }
+    .stButton button:hover {
+        background-color: #037099;
+    }
+    .response-area {
+        background-color: #f0f0f5;
+        border-radius: 10px;
+        padding: 0px;
+        margin-top: 0em;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# Display logo and title
+col1, col2, col3 = st.columns([1,3,1])
+with col1:
+    st.image("image.jpeg", width=150)
+with col2:
+    st.markdown('<h1 class="main-title">ADVANCED ANALYTICS BOT</h1>', unsafe_allow_html=True)
+
+    st.markdown("""<div style="text-align: center; font-size: 1em; margin-bottom: 0em;">This bot analyzes documents and answers questions based on their content.</div>""", unsafe_allow_html=True)
 
 # Initialize the Groq language model
 llm = ChatGroq(groq_api_key=groq_api_key, model_name="Gemma-7b-it")
@@ -59,62 +119,108 @@ qa_chain = create_stuff_documents_chain(llm, qa_prompt)
 summary_chain = create_stuff_documents_chain(llm, summary_prompt)
 extract_chain = create_stuff_documents_chain(llm, extract_prompt)
 
-# Define function to create vector store from predefined documents
+# Define function to create vector store from predefined documents and website
 def vector_embedding():
+    questions_dir = "./Questions"
+    if not os.path.exists(questions_dir):
+        st.error(f"The Questions directory does not exist at the specified path: {questions_dir}")
+        return
+    
     if "vectors" not in st.session_state:
         with st.spinner("Creating vector store, please wait..."):
             st.session_state.embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
-            st.session_state.loader = PyPDFDirectoryLoader("./Questions")
+            st.session_state.loader = PyPDFDirectoryLoader(questions_dir)
             st.session_state.docs = st.session_state.loader.load()
+            
+            # Load content from website
+            url = "https://bluechiptech.biz/"
+            try:
+                response = requests.get(url)
+                response.raise_for_status()
+                
+                soup = BeautifulSoup(response.content, 'html.parser')
+                website_text = soup.get_text(separator="\n", strip=True)
+                
+                # Create document from website content
+                website_doc = Document(page_content=website_text)
+                text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+                website_docs = text_splitter.split_documents([website_doc])
+            except Exception as e:
+                st.error(f"An error occurred while fetching the URL content: {e}")
+                website_docs = []
+            
+            # Combine documents from predefined PDFs and website
+            combined_docs = st.session_state.docs + website_docs
             st.session_state.text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-            st.session_state.final_documents = st.session_state.text_splitter.split_documents(st.session_state.docs)
+            st.session_state.final_documents = st.session_state.text_splitter.split_documents(combined_docs)
             st.session_state.vectors = FAISS.from_documents(st.session_state.final_documents, st.session_state.embeddings)
         st.success("Vector Store DB is Ready")
 
-# Initialize the vector store for predefined documents
+# Initialize the vector store for predefined documents and website content
 vector_embedding()
 
-# Define function to create vector store from uploaded PDFs
+# Define function to create vector store from uploaded files
 def vector_embedding_from_uploaded_files(uploaded_files):
     uploaded_docs = []
-    upload_dir = "uploaded_pdfs"
+    upload_dir = "uploaded_files"
     os.makedirs(upload_dir, exist_ok=True)
     
     for uploaded_file in uploaded_files:
         file_path = os.path.join(upload_dir, uploaded_file.name)
         with open(file_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
-        loader = PyPDFLoader(file_path)
-        uploaded_docs.extend(loader.load())
         
-    embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-    final_documents = text_splitter.split_documents(uploaded_docs)
-    uploaded_vector_store = FAISS.from_documents(final_documents, embeddings)
-    return uploaded_vector_store, final_documents
-
-# Streamlit UI for uploading PDFs
-st.header("Upload PDFs")
-st.write("Upload your PDFs to create a vector store from the documents.")
-uploaded_files = st.file_uploader("Choose PDF files", type="pdf", accept_multiple_files=True)
-
-if uploaded_files:
-    if st.button("Create Vector Store from Uploaded PDFs"):
-        uploaded_vector_store, uploaded_docs = vector_embedding_from_uploaded_files(uploaded_files)
+        if uploaded_file.name.endswith(".pdf"):
+            loader = PyPDFLoader(file_path)
+        elif uploaded_file.name.endswith(".docx"):
+            text = docx2txt.process(file_path)
+            temp_txt_path = file_path.replace(".docx", ".txt")
+            with open(temp_txt_path, "w") as f:
+                f.write(text)
+            loader = TextLoader(temp_txt_path)
+        elif uploaded_file.name.endswith(".xlsx"):
+            df = pd.read_excel(file_path)
+            text = "\n".join(df.astype(str).apply(lambda x: " ".join(x), axis=1))
+            temp_txt_path = file_path.replace(".xlsx", ".txt")
+            with open(temp_txt_path, "w") as f:
+                f.write(text)
+            loader = TextLoader(temp_txt_path)
+        else:
+            continue
         
-        # Combine the uploaded documents with the existing documents
-        combined_docs = st.session_state.final_documents + uploaded_docs
+        docs = loader.load()
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+        final_documents = text_splitter.split_documents(docs)
+        embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+        vector_store = FAISS.from_documents(final_documents, embeddings)
+        uploaded_docs.append((final_documents, vector_store))
+
+    if uploaded_docs:
+        combined_docs = st.session_state.final_documents + [doc for docs, _ in uploaded_docs for doc in docs]
         combined_vector_store = FAISS.from_documents(combined_docs, st.session_state.embeddings)
-        
-        st.session_state.vectors = combined_vector_store
-        st.success("Combined Vector Store DB is Ready")
+        return combined_vector_store
+    return None
 
-# Streamlit UI for asking questions
-st.header("Ask a Question")
-st.write("Enter your question based on the documents provided and get an accurate response.")
+# Improved file uploader UI
+st.markdown('<div class="file-upload-area">', unsafe_allow_html=True)
+uploaded_files = st.file_uploader(" ", type=["pdf", "docx", "xlsx"], accept_multiple_files=True)
+st.markdown('</div>', unsafe_allow_html=True)
+
+# Process uploaded files
+if uploaded_files:
+    if st.button("Process Uploaded Files"):
+        with st.spinner("Creating vector store from uploaded files..."):
+            uploaded_vector_store = vector_embedding_from_uploaded_files(uploaded_files)
+        if uploaded_vector_store:
+            st.session_state.vectors = uploaded_vector_store
+            st.success("Vector Store DB Updated Successfully!")
+
+# Improved question input and submit button
 with st.form(key='question_form'):
-    prompt1 = st.text_input("Enter Question from the Document")
-    submit_button = st.form_submit_button(label='Submit Question')
+    prompt1 = st.text_input("Enter your question here", placeholder="e.g., Summarize the main points of the document")
+    submit_col1, submit_col2, submit_col3 = st.columns([1,2,2])
+    with submit_col1:
+        submit_button = st.form_submit_button(label='Submit Question')
 
 # Function to select the appropriate chain based on query
 def get_chain_for_query(query):
@@ -140,38 +246,18 @@ if submit_button and prompt1:
             response = retrieval_chain.invoke({'input': prompt1})
             response_time = time.process_time() - start
 
-        st.write("Response time: {:.2f} seconds".format(response_time))
+        st.markdown('<div class="response-area">', unsafe_allow_html=True)
+        st.write(f"Response time: {response_time:.2f} seconds")
         st.write(response['answer'])
+        st.markdown('</div>', unsafe_allow_html=True)
 
         with st.expander("Document Similarity Search"):
             for i, doc in enumerate(response["context"]):
                 st.write(doc.page_content)
-                st.write("..............")
+                st.write("---")
     except Exception as e:
         st.error(f"An error occurred: {e}")
 
-# Custom CSS for better UI with black input text and blinking cursor
-st.markdown("""
-<style>
-    .stTextInput input {
-        background-color: #f0f0f5;
-        border-radius: 5px;
-        padding: 10px;
-        font-size: 16px;
-        color: black; /* Set the text color to black */
-        caret-color: black; /* Ensure the caret (blinking cursor) color is black */
-    }
-    .stButton button {
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        padding: 10px 20px;
-        font-size: 16px;
-        cursor: pointer;
-    }
-    .stButton button:hover {
-        background-color: #45a049;
-    }
-</style>
-""", unsafe_allow_html=True)
+# Add a footer
+st.markdown("---")
+st.markdown("Powered by BlueChip Technologies | [Visit our website](https://bluechiptech.biz/)")

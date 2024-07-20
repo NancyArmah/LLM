@@ -1,0 +1,53 @@
+1 Permit Number Number assigned while filing
+2 Permit Type Type of the permit represented numerically.
+3 Permit Type Definition Description of the Permit type, for example
+ new construction, alterations
+4 Permit Creation Date Date on which permit created, later than 
+or same as filing date
+5 Block Related to address
+6 Lot Related to address
+7 Street Number Related to address
+8 Street Number Suffix Related to address
+9 Street Name Related to address
+10 Street Name Suffix Related to address
+11 Unit Unit of a building
+12 Unit suffix Suffix if any, for the unit
+13 Description Details about purpose of the permit.
+ Example: reroofing, bathroom renovation
+14 Current Status Current status of the permit application. 
+15 Current Status Date Date at which current status was entered
+16 Filed Date Filed date for the permit
+17 Issued Date Issued date for the permit
+18 Completed Date The date on which project was completed, 
+applicable if Current Status = “completed”
+19 First Construction Document Date Date on which construction was documented
+20 Structural Notification Notification to meet some legal need, given or not
+21 Number of Existing Stories Number of existing stories in the building. 
+Not applicable for certain permit types
+22 Number of Proposed Stories Number of proposed stories for the construction/alteration
+23 Voluntary Soft-Story 
+Retrofit Soft story to meet earth quake regulations
+24 Fire Only Permit Fire hazard prevention related permit
+25 Permit Expiration Date Expiration date related to issued permit.
+26 Estimated Cost Initial estimation of the cost of the project
+27 Revised Cost Revised estimation of the cost of the project
+28 Existing Use Existing use of the building
+29 Existing Units Existing number of units
+30 Proposed Use Proposed use of the building
+31 Proposed Units Proposed number of units
+32 Plansets Plan representation indicating the general design
+ intent of the foundation..
+33 TIDF Compliance TIDF compliant or not, this is a new legal requirement
+34 Existing Construction Type Construction type, existing,as categories 
+represented numerically
+35 Existing Construction Type Description Description of the above, for example, 
+wood or other construction types
+36 Proposed Construction Type Construction type, proposed, as categories
+ represented numerically
+37 Proposed Construction Type Description Description of the above
+38 Site Permit Permit for site
+39 Supervisor District Supervisor District to which the building location belongs to
+40 Neighborhoods - Analysis Boundaries Neighborhood to which the building location belongs to
+41 Zipcode Zipcode of building address
+42 Location Location in latitude, longitude pair.
+43 Record ID Some ID, not useful for this
