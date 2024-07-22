@@ -68,11 +68,27 @@ st.markdown("""
         padding: 0px;
         margin-top: 0em;
     }
+    .highlight {
+        background-color: yellow;
+    }
+    .chat-bubble {
+        padding: 10px;
+        margin: 10px;
+        border-radius: 10px;
+    }
+    .user-bubble {
+        background-color: #d1e7dd;
+        text-align: left;
+    }
+    .bot-bubble {
+        background-color: #f0f0f5;
+        text-align: left;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # Display logo and title
-col1, col2, col3 = st.columns([1,3,1])
+col1, col2, col3 = st.columns([1, 3, 1])
 with col1:
     st.image("image.jpeg", width=150)
 with col2:
@@ -118,6 +134,20 @@ qa_chain = create_stuff_documents_chain(llm, qa_prompt)
 summary_chain = create_stuff_documents_chain(llm, summary_prompt)
 extract_chain = create_stuff_documents_chain(llm, extract_prompt)
 
+# Initialize conversation history in session state
+if 'conversation_history' not in st.session_state:
+    st.session_state.conversation_history = []
+
+# Function to add message to conversation history
+def add_to_conversation_history(user_message, bot_response):
+    st.session_state.conversation_history.append({"user": user_message, "bot": bot_response})
+
+# Function to display conversation history
+def display_conversation_history():
+    for entry in st.session_state.conversation_history:
+        st.markdown(f'<div class="chat-bubble user-bubble">{entry["user"]}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="chat-bubble bot-bubble">{entry["bot"]}</div>', unsafe_allow_html=True)
+
 # Define function to create vector store from predefined documents and website
 def vector_embedding():
     questions_dir = "./Questions"
@@ -142,16 +172,18 @@ def vector_embedding():
                 
                 # Create document from website content
                 website_doc = Document(page_content=website_text)
-                text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-                website_docs = text_splitter.split_documents([website_doc])
             except Exception as e:
                 st.error(f"An error occurred while fetching the URL content: {e}")
-                website_docs = []
+                website_doc = None
             
             # Combine documents from predefined PDFs and website
-            combined_docs = st.session_state.docs + website_docs
-            st.session_state.text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-            st.session_state.final_documents = st.session_state.text_splitter.split_documents(combined_docs)
+            combined_docs = st.session_state.docs
+            if website_doc:
+                combined_docs.append(website_doc)
+            
+            # Split the combined documents once
+            text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+            st.session_state.final_documents = text_splitter.split_documents(combined_docs)
             st.session_state.vectors = FAISS.from_documents(st.session_state.final_documents, st.session_state.embeddings)
         st.toast("Vector Store DB is Ready", icon="✅")
 
@@ -216,8 +248,8 @@ if uploaded_files:
 
 # Improved question input and submit button
 with st.form(key='question_form'):
-    prompt1 = st.text_input("Enter your question here", placeholder="e.g., Summarize the main points of the document")
-    submit_col1, submit_col2, submit_col3 = st.columns([1,2,2])
+    prompt1 = st.text_input("Ask me anything about the documents or website content:", placeholder="e.g., Summarize the main points of the document")
+    submit_col1, submit_col2, submit_col3 = st.columns([1, 2, 2])
     with submit_col1:
         submit_button = st.form_submit_button(label='Submit Question')
 
@@ -240,15 +272,19 @@ if submit_button and prompt1:
         retriever = st.session_state.vectors.as_retriever()
         retrieval_chain = create_retrieval_chain(retriever, selected_chain)
         
+        # Generate response for the query
         with st.spinner("Generating response, please wait..."):
             start = time.process_time()
             response = retrieval_chain.invoke({'input': prompt1})
             response_time = time.process_time() - start
 
         st.markdown('<div class="response-area">', unsafe_allow_html=True)
-        st.write(f"Response time: {response_time:.2f} seconds")
+        st.write(f"Response time: {response_time:.2f} seconds")  # Corrected line
         st.write(response['answer'])
         st.markdown('</div>', unsafe_allow_html=True)
+
+        # Update conversation history
+        add_to_conversation_history(prompt1, response['answer'])
 
         with st.expander("Document Similarity Search"):
             for i, doc in enumerate(response["context"]):
@@ -256,6 +292,10 @@ if submit_button and prompt1:
                 st.write("---")
     except Exception as e:
         st.error(f"An error occurred: {e}")
+
+
+# Display conversation history
+display_conversation_history()
 
 # Add a footer
 st.markdown("---")
