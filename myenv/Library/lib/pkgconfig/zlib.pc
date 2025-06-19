@@ -1,8 +1,8 @@
-prefix=C:/Users/Bluechip/Desktop/Bluechip/LLM/myenv/Library
-exec_prefix=C:/Users/Bluechip/Desktop/Bluechip/LLM/myenv/Library
-libdir=C:/Users/Bluechip/Desktop/Bluechip/LLM/myenv/Library/lib
-sharedlibdir=C:/Users/Bluechip/Desktop/Bluechip/LLM/myenv/Library/lib
-includedir=C:/Users/Bluechip/Desktop/Bluechip/LLM/myenv/Library/include
+prefix=c:/Users/Bluechip/Desktop/Bluechip/LLM/myenv/Library
+exec_prefix=c:/Users/Bluechip/Desktop/Bluechip/LLM/myenv/Library
+libdir=c:/Users/Bluechip/Desktop/Bluechip/LLM/myenv/Library/lib
+sharedlibdir=c:/Users/Bluechip/Desktop/Bluechip/LLM/myenv/Library/lib
+includedir=c:/Users/Bluechip/Desktop/Bluechip/LLM/myenv/Library/include
 
 Name: zlib
 Description: zlib compression library

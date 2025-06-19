@@ -1,0 +1,12 @@
+prefix=c:/Users/Bluechip/Desktop/Bluechip/LLM/myenv/Library
+exec_prefix=c:/Users/Bluechip/Desktop/Bluechip/LLM/myenv/Library
+libdir=c:/Users/Bluechip/Desktop/Bluechip/LLM/myenv/Library/lib
+includedir=c:/Users/Bluechip/Desktop/Bluechip/LLM/myenv/Library/include
+
+Name: libzmq
+Description: 0MQ c++ library
+Version: 4.3.5
+Libs: -L${libdir} -lzmq
+Libs.private: -lstdc++ 
+Requires.private: 
+Cflags: -I${includedir} 

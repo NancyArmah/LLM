@@ -115,7 +115,7 @@
     ],
     "paths_version": 1
   },
-  "requested_spec": "None",
+  "requested_spec": "libffi",
   "sha256": "43a437fde4c064b2f1be2342a7bc6edccbc13da6a4fb8a44d87e4e6e34c54b63",
   "size": 124747,
   "subdir": "win-64",

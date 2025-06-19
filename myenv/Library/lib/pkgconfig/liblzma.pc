@@ -1,19 +1,15 @@
-#
+# SPDX-License-Identifier: 0BSD
 # Author: Lasse Collin
-#
-# This file has been put into the public domain.
-# You can do whatever you want with this file.
-#
 
-prefix=/c/b/abs_408t8wz0h8/croot/xz_1714514706366/_h_env
-exec_prefix=/c/b/abs_408t8wz0h8/croot/xz_1714514706366/_h_env
-libdir=/c/b/abs_408t8wz0h8/croot/xz_1714514706366/_h_env/lib
-includedir=/c/b/abs_408t8wz0h8/croot/xz_1714514706366/_h_env/include
+prefix=c:/Users/Bluechip/Desktop/Bluechip/LLM/myenv/Library
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
 
 Name: liblzma
 Description: General purpose data compression library
-URL: https://xz.tukaani.org/xz-utils/
-Version: 5.4.6
+URL: https://tukaani.org/xz/
+Version: 5.6.4
 Cflags: -I${includedir}
 Cflags.private: -DLZMA_API_STATIC
 Libs: -L${libdir} -llzma
